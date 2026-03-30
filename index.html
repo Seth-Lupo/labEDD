@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>LabEDD — Lab Reports to Structured Data for Environmental Consultants</title>
-  <meta name="description" content="LabEDD converts analytical lab report PDFs into structured Excel spreadsheets. >99% accuracy. Any lab, any format. Built for environmental consultancies.">
+  <title>LabEDD — Lab Data to Report-Ready Tables for Environmental Consultants</title>
+  <meta name="description" content="LabEDD converts lab data into report-ready appendix tables in your firm's specific format. Skip the reformatting grind. Any lab, any format. Built for environmental consultancies.">
   <meta name="keywords" content="EDD, electronic data deliverable, lab report, PDF to Excel, environmental data, environmental consulting, analytical results, LabEDD">
   <meta name="author" content="LabEDD">
   <link rel="canonical" href="https://labedd.com/">
@@ -12,14 +12,14 @@
   <!-- Open Graph -->
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://labedd.com/">
-  <meta property="og:title" content="LabEDD — Lab Reports to Structured Data">
-  <meta property="og:description" content="Convert analytical lab report PDFs into structured Excel spreadsheets. >99% accuracy. Any lab, any format. Built for environmental consultancies.">
+  <meta property="og:title" content="LabEDD — Lab Data to Report-Ready Tables">
+  <meta property="og:description" content="Convert lab data into report-ready appendix tables in your firm's specific format. Skip the reformatting grind. Built for environmental consultancies.">
   <meta property="og:site_name" content="LabEDD">
 
   <!-- Twitter -->
   <meta name="twitter:card" content="summary">
-  <meta name="twitter:title" content="LabEDD — Lab Reports to Structured Data">
-  <meta name="twitter:description" content="Convert analytical lab report PDFs into structured Excel spreadsheets. >99% accuracy. Any lab, any format.">
+  <meta name="twitter:title" content="LabEDD — Lab Data to Report-Ready Tables">
+  <meta name="twitter:description" content="Convert lab data into report-ready appendix tables in your firm's specific format. Skip the reformatting grind. Any lab, any format.">
 
   <!-- Favicon -->
   <link rel="icon" type="image/svg+xml" href="favicon.svg">
@@ -61,33 +61,50 @@
     .viz::before { top: 0; background: linear-gradient(to bottom, #0b100b 20%, transparent); }
     .viz::after  { bottom: 0; background: linear-gradient(to top, #0b100b 20%, transparent); }
 
-    /* Divider line */
+    /* Two divider lines */
     .machine {
       position: absolute;
       left: 8%;
       right: 8%;
-      top: 50%;
       height: 2px;
       background: #7aad68;
       z-index: 15;
       box-shadow: 0 0 12px rgba(122,173,104,0.3);
     }
+    .machine.lower {
+      top: 66.66%;
+    }
+    .machine.upper {
+      top: 33.33%;
+    }
 
-    /* --- TRACKS: clipped regions above/below machine --- */
+    /* --- TRACKS: three vertical sections --- */
+    /* Bottom third: PDF pages */
     .page-track {
       position: absolute;
       left: 8%; right: 8%;
-      top: calc(50% + 1px);
+      top: calc(66.66% + 1px);
       bottom: 0;
       z-index: 5;
       overflow: hidden;
     }
 
+    /* Middle third: Tabular data */
     .row-track {
       position: absolute;
       left: 8%; right: 8%;
+      top: calc(33.33% + 1px);
+      bottom: calc(33.34% + 1px);
+      z-index: 5;
+      overflow: hidden;
+    }
+
+    /* Top third: Diagrams */
+    .diagram-track {
+      position: absolute;
+      left: 8%; right: 8%;
       top: 0;
-      bottom: calc(50% + 1px);
+      bottom: calc(66.67% + 1px);
       z-index: 5;
       overflow: hidden;
     }
@@ -140,6 +157,78 @@
       font-weight: 700;
       font-size: 6px;
       text-transform: uppercase;
+    }
+
+    /* --- REPORT TABLE ELEMENTS --- */
+    .diagram-strip {
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      will-change: transform;
+    }
+
+    .report-table {
+      background: #fefffe;
+      border: 1px solid #333;
+      flex-shrink: 0;
+      padding: 8px;
+      font-family: 'Arial', sans-serif;
+    }
+
+    .table-header {
+      font-size: 6.5px;
+      color: #000;
+      font-weight: 700;
+      margin-bottom: 5px;
+      text-align: center;
+    }
+
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 5px;
+      color: #000;
+    }
+
+    .data-table th {
+      background: #d9d9d9;
+      border: 0.5px solid #666;
+      padding: 2px 3px;
+      font-weight: 700;
+      font-size: 4.5px;
+      text-align: center;
+      line-height: 1.1;
+    }
+
+    .data-table th.group-header {
+      background: #e8e8e8;
+      font-size: 5px;
+      border-bottom: 1px solid #333;
+    }
+
+    .data-table td {
+      border: 0.5px solid #999;
+      padding: 1.5px 2px;
+      text-align: center;
+      background: #fff;
+      line-height: 1.2;
+    }
+
+    .data-table td.exceed {
+      background: #fdd;
+    }
+
+    .data-table td.left {
+      text-align: left;
+      padding-left: 3px;
+    }
+
+    .table-footer {
+      font-size: 4.5px;
+      color: #333;
+      margin-top: 3px;
+      line-height: 1.2;
+      text-align: left;
     }
 
     /* ---- RIGHT PANEL ---- */
@@ -220,9 +309,6 @@
     .points li strong { color: #7aad68; font-weight: 500; }
 
     .cta-row {
-      display: flex;
-      align-items: center;
-      gap: 3rem;
       max-width: 620px;
     }
 
@@ -236,35 +322,8 @@
       font-weight: 500;
       text-decoration: none;
       transition: background 0.2s;
-      flex-shrink: 0;
     }
     .cta:hover { background: #7aad68; color: #0b100b; }
-
-    .other-automation {
-      flex: 1;
-    }
-
-    .other-automation p {
-      font-size: 0.8rem;
-      color: #7a807a;
-      line-height: 1.6;
-    }
-
-    .other-automation strong {
-      color: #a3a89d;
-      font-weight: 500;
-    }
-
-    .other-automation a {
-      color: #7aad68;
-      text-decoration: none;
-      border-bottom: 1px solid transparent;
-      transition: border-color 0.2s;
-    }
-
-    .other-automation a:hover {
-      border-bottom-color: #7aad68;
-    }
 
     footer {
       position: absolute;
@@ -309,9 +368,6 @@
         margin-bottom: 2rem;
       }
       .cta-row {
-        display: contents;
-      }
-      .cta {
         order: 3;
         margin-bottom: 2rem;
       }
@@ -319,11 +375,6 @@
         order: 4;
         text-align: left;
         margin-bottom: 2rem;
-      }
-      .other-automation {
-        order: 5;
-        text-align: center;
-        max-width: 100%;
       }
       footer {
         position: relative;
@@ -339,26 +390,306 @@
 
   <div class="viz">
 
-    <!-- Continuous page scroll below the machine -->
-    <div class="page-track">
-      <div class="page-strip">
-        <img src="pages/page-029.jpg" alt="">
-        <img src="pages/page-020.jpg" alt="">
-        <img src="pages/page-004.jpg" alt="">
-        <img src="pages/page-024.jpg" alt="">
-        <img src="pages/page-030.jpg" alt="">
-        <img src="pages/page-009.jpg" alt="">
-        <img src="pages/page-017.jpg" alt="">
-        <img src="pages/page-001.jpg" alt="">
-        <img src="pages/page-007.jpg" alt="">
-        <img src="pages/page-005.jpg" alt="">
+    <!-- Top third: Report Tables -->
+    <div class="diagram-track">
+      <div class="diagram-strip">
+        <div class="report-table">
+          <div class="table-header">Table 1 - Soil Analytical Summary</div>
+          <table class="data-table">
+            <tr>
+              <th rowspan="3">Sample ID</th>
+              <th rowspan="3">Depth</th>
+              <th rowspan="3">Analyte</th>
+              <th rowspan="3">Result<br>(mg/kg)</th>
+              <th rowspan="3">Qual</th>
+              <th colspan="3" class="group-header">TACO Tier 1 SROs</th>
+            </tr>
+            <tr>
+              <th>Industrial/<br>Commercial</th>
+              <th>Construction<br>Worker</th>
+              <th>Class I GW<br>Ingestion</th>
+            </tr>
+            <tr>
+              <th>(mg/kg)</th>
+              <th>(mg/kg)</th>
+              <th>(mg/kg)</th>
+            </tr>
+            <tr>
+              <td class="left">CH1-SB-01</td>
+              <td>0-2'</td>
+              <td class="left">Lead</td>
+              <td class="exceed">1,700</td>
+              <td>---</td>
+              <td>800</td>
+              <td>800</td>
+              <td>400</td>
+            </tr>
+            <tr>
+              <td class="left">CH1-SB-01</td>
+              <td>0-2'</td>
+              <td class="left">Arsenic</td>
+              <td>3.0</td>
+              <td>---</td>
+              <td>100</td>
+              <td>15</td>
+              <td>16</td>
+            </tr>
+            <tr>
+              <td class="left">CH1-SB-03</td>
+              <td>2-4'</td>
+              <td class="left">Benzo(a)pyrene</td>
+              <td class="exceed">8.8</td>
+              <td>---</td>
+              <td>0.96</td>
+              <td>0.62</td>
+              <td>0.013</td>
+            </tr>
+            <tr>
+              <td class="left">CH1-SB-05</td>
+              <td>0-2'</td>
+              <td class="left">TPH (GRO)</td>
+              <td>380</td>
+              <td>---</td>
+              <td>1,500</td>
+              <td>1,500</td>
+              <td>500</td>
+            </tr>
+          </table>
+          <div class="table-footer">--- Not Analyzed | TACO = Tiered Approach to Corrective Action Objectives (35 IAC 742) | SROs = Soil Remediation Objectives</div>
+        </div>
+
+        <div class="report-table">
+          <div class="table-header">Table 2 - Inorganic pH-Specific SROs Analytical Summary</div>
+          <table class="data-table">
+            <tr>
+              <th rowspan="2">Parameter</th>
+              <th rowspan="2">Sample</th>
+              <th rowspan="2">Result<br>(mg/kg)</th>
+              <th colspan="2" class="group-header">pH-Specific Tier 1 SROs</th>
+              <th rowspan="2">Background</th>
+            </tr>
+            <tr>
+              <th>Industrial</th>
+              <th>Class I GW</th>
+            </tr>
+            <tr>
+              <td class="left">Chromium</td>
+              <td>CH1-SB-02</td>
+              <td class="exceed">410</td>
+              <td>31,000</td>
+              <td>230</td>
+              <td>---</td>
+            </tr>
+            <tr>
+              <td class="left">Lead</td>
+              <td>CH1-SB-02</td>
+              <td class="exceed">1,700</td>
+              <td>800</td>
+              <td>400</td>
+              <td>---</td>
+            </tr>
+            <tr>
+              <td class="left">Mercury</td>
+              <td>CH1-SB-GP-06</td>
+              <td>3.3</td>
+              <td>16</td>
+              <td>0.06</td>
+              <td>0.048</td>
+            </tr>
+          </table>
+          <div class="table-footer">pH = 6.9-7.24 | Concentrations exceed Tier 1 SROs for Soil Component of GW Ingestion Exposure Route | Bold = Exceedance</div>
+        </div>
+
+        <div class="report-table">
+          <div class="table-header">Table 3 - Groundwater Analytical Summary</div>
+          <table class="data-table">
+            <tr>
+              <th rowspan="2">Parameter</th>
+              <th rowspan="2">Well ID</th>
+              <th rowspan="2">Result<br>(μg/L)</th>
+              <th colspan="2" class="group-header">GW Remediation Objectives</th>
+            </tr>
+            <tr>
+              <th>Class I</th>
+              <th>Class II</th>
+            </tr>
+            <tr>
+              <td class="left">Benzene</td>
+              <td>CH1-GW-TW-02</td>
+              <td>0.64 J</td>
+              <td>5.0</td>
+              <td>50</td>
+            </tr>
+            <tr>
+              <td class="left">TPH-DRO</td>
+              <td>CH1-GW-TW-02</td>
+              <td class="exceed">6,600</td>
+              <td>100</td>
+              <td>1,000</td>
+            </tr>
+            <tr>
+              <td class="left">Lead, Total</td>
+              <td>CH1-GW-TW-04</td>
+              <td class="exceed">0.015</td>
+              <td>0.0065</td>
+              <td>0.065</td>
+            </tr>
+          </table>
+          <div class="table-footer">J = Estimated value | GROs from 35 IAC 742, Appendix B, Table E | Bold indicates concentration exceeds Class I Groundwater criteria</div>
+        </div>
+
+        <!-- Duplicate for loop -->
+        <div class="report-table">
+          <div class="table-header">Table 1 - Soil Analytical Summary</div>
+          <table class="data-table">
+            <tr>
+              <th rowspan="3">Sample ID</th>
+              <th rowspan="3">Depth</th>
+              <th rowspan="3">Analyte</th>
+              <th rowspan="3">Result<br>(mg/kg)</th>
+              <th rowspan="3">Qual</th>
+              <th colspan="3" class="group-header">TACO Tier 1 SROs</th>
+            </tr>
+            <tr>
+              <th>Industrial/<br>Commercial</th>
+              <th>Construction<br>Worker</th>
+              <th>Class I GW<br>Ingestion</th>
+            </tr>
+            <tr>
+              <th>(mg/kg)</th>
+              <th>(mg/kg)</th>
+              <th>(mg/kg)</th>
+            </tr>
+            <tr>
+              <td class="left">CH1-SB-01</td>
+              <td>0-2'</td>
+              <td class="left">Lead</td>
+              <td class="exceed">1,700</td>
+              <td>---</td>
+              <td>800</td>
+              <td>800</td>
+              <td>400</td>
+            </tr>
+            <tr>
+              <td class="left">CH1-SB-01</td>
+              <td>0-2'</td>
+              <td class="left">Arsenic</td>
+              <td>3.0</td>
+              <td>---</td>
+              <td>100</td>
+              <td>15</td>
+              <td>16</td>
+            </tr>
+            <tr>
+              <td class="left">CH1-SB-03</td>
+              <td>2-4'</td>
+              <td class="left">Benzo(a)pyrene</td>
+              <td class="exceed">8.8</td>
+              <td>---</td>
+              <td>0.96</td>
+              <td>0.62</td>
+              <td>0.013</td>
+            </tr>
+            <tr>
+              <td class="left">CH1-SB-05</td>
+              <td>0-2'</td>
+              <td class="left">TPH (GRO)</td>
+              <td>380</td>
+              <td>---</td>
+              <td>1,500</td>
+              <td>1,500</td>
+              <td>500</td>
+            </tr>
+          </table>
+          <div class="table-footer">--- Not Analyzed | TACO = Tiered Approach to Corrective Action Objectives (35 IAC 742) | SROs = Soil Remediation Objectives</div>
+        </div>
+
+        <div class="report-table">
+          <div class="table-header">Table 2 - Inorganic pH-Specific SROs Analytical Summary</div>
+          <table class="data-table">
+            <tr>
+              <th rowspan="2">Parameter</th>
+              <th rowspan="2">Sample</th>
+              <th rowspan="2">Result<br>(mg/kg)</th>
+              <th colspan="2" class="group-header">pH-Specific Tier 1 SROs</th>
+              <th rowspan="2">Background</th>
+            </tr>
+            <tr>
+              <th>Industrial</th>
+              <th>Class I GW</th>
+            </tr>
+            <tr>
+              <td class="left">Chromium</td>
+              <td>CH1-SB-02</td>
+              <td class="exceed">410</td>
+              <td>31,000</td>
+              <td>230</td>
+              <td>---</td>
+            </tr>
+            <tr>
+              <td class="left">Lead</td>
+              <td>CH1-SB-02</td>
+              <td class="exceed">1,700</td>
+              <td>800</td>
+              <td>400</td>
+              <td>---</td>
+            </tr>
+            <tr>
+              <td class="left">Mercury</td>
+              <td>CH1-SB-GP-06</td>
+              <td>3.3</td>
+              <td>16</td>
+              <td>0.06</td>
+              <td>0.048</td>
+            </tr>
+          </table>
+          <div class="table-footer">pH = 6.9-7.24 | Concentrations exceed Tier 1 SROs for Soil Component of GW Ingestion Exposure Route | Bold = Exceedance</div>
+        </div>
+
+        <div class="report-table">
+          <div class="table-header">Table 3 - Groundwater Analytical Summary</div>
+          <table class="data-table">
+            <tr>
+              <th rowspan="2">Parameter</th>
+              <th rowspan="2">Well ID</th>
+              <th rowspan="2">Result<br>(μg/L)</th>
+              <th colspan="2" class="group-header">GW Remediation Objectives</th>
+            </tr>
+            <tr>
+              <th>Class I</th>
+              <th>Class II</th>
+            </tr>
+            <tr>
+              <td class="left">Benzene</td>
+              <td>CH1-GW-TW-02</td>
+              <td>0.64 J</td>
+              <td>5.0</td>
+              <td>50</td>
+            </tr>
+            <tr>
+              <td class="left">TPH-DRO</td>
+              <td>CH1-GW-TW-02</td>
+              <td class="exceed">6,600</td>
+              <td>100</td>
+              <td>1,000</td>
+            </tr>
+            <tr>
+              <td class="left">Lead, Total</td>
+              <td>CH1-GW-TW-04</td>
+              <td class="exceed">0.015</td>
+              <td>0.0065</td>
+              <td>0.065</td>
+            </tr>
+          </table>
+          <div class="table-footer">J = Estimated value | GROs from 35 IAC 742, Appendix B, Table E | Bold indicates concentration exceeds Class I Groundwater criteria</div>
+        </div>
       </div>
     </div>
 
-    <!-- Divider line -->
-    <div class="machine"></div>
+    <!-- Upper divider line -->
+    <div class="machine upper"></div>
 
-    <!-- Continuous row scroll above the machine -->
+    <!-- Middle third: Tabular data -->
     <div class="row-track">
       <div class="row-strip">
         <div class="csv-row"><div class="cell h">Sample</div><div class="cell h">Depth</div><div class="cell h">Analyte</div><div class="cell h">Result</div><div class="cell h">Units</div><div class="cell h">Qual</div></div>
@@ -407,6 +738,25 @@
       </div>
     </div>
 
+    <!-- Lower divider line -->
+    <div class="machine lower"></div>
+
+    <!-- Bottom third: PDF pages -->
+    <div class="page-track">
+      <div class="page-strip">
+        <img src="pages/page-029.jpg" alt="">
+        <img src="pages/page-020.jpg" alt="">
+        <img src="pages/page-004.jpg" alt="">
+        <img src="pages/page-024.jpg" alt="">
+        <img src="pages/page-030.jpg" alt="">
+        <img src="pages/page-009.jpg" alt="">
+        <img src="pages/page-017.jpg" alt="">
+        <img src="pages/page-001.jpg" alt="">
+        <img src="pages/page-007.jpg" alt="">
+        <img src="pages/page-005.jpg" alt="">
+      </div>
+    </div>
+
   </div>
 
   <!-- RIGHT PANEL -->
@@ -422,19 +772,16 @@
       <div class="logo-text">Lab<span>EDD</span></div>
     </div>
 
-    <h2>Analytical <em class="underline">lab report PDFs</em> to <em class="underline">structured spreadsheets</em> for <span class="highlight">environmental consultancies</span>.</h2>
+    <h2>Lab data to <em class="underline">report-ready appendix tables</em> in <span class="highlight">your firm's format</span>.</h2>
 
     <ul class="points">
-      <li><strong>>99% accuracy</strong> across results tables, qualifier flags, non-detects, detection limits, and dilution factors.</li>
-      <li>Flat data table and sample-by-analyte crosstab delivered in Excel, <strong>ready for your report</strong>.</li>
-      <li><strong>Any lab, any format.</strong> Eurofins, Pace, SGS, ALS, Alpha, or your regional lab.</li>
+      <li><strong>Upload PDFs or spreadsheets.</strong> Lab reports, EDDs, field data. Any format from any lab.</li>
+      <li><strong>Get back your firm's custom format.</strong> Your column order, screening criteria, footnotes, and table layout.</li>
+      <li><strong>Paste directly into your report.</strong> Report-ready appendix tables that match your firm's style.</li>
 </ul>
 
     <div class="cta-row">
       <a href="https://calendly.com/seth-labedd/labedd-demo" class="cta">Schedule a Demo</a>
-      <div class="other-automation">
-        <p>We also build <strong>custom automation solutions</strong> for environmental firms. Sick of repetitive work? <a href="https://calendly.com/seth-labedd/labedd-demo">Let's talk</a>.</p>
-      </div>
     </div>
   </div>
 
@@ -444,8 +791,7 @@
   </footer>
 
   <script>
-    // Infinite vertical marquee: pages scroll UP (from bottom toward machine)
-    // Rows scroll UP (from machine toward top)
+    // Infinite vertical marquee for all three sections
     function marquee(strip, speed) {
       const clone = strip.innerHTML;
       strip.innerHTML += clone;
@@ -476,14 +822,17 @@
       }
     }
 
-    // Pages: scroll upward at ~30px/s
-    const pageStrip = document.querySelector('.page-strip');
-    // Start pages off-screen below so they scroll into view
-    marquee(pageStrip, 1.0);
+    // Diagrams: scroll upward (top section)
+    const diagramStrip = document.querySelector('.diagram-strip');
+    marquee(diagramStrip, 0.5);
 
-    // Rows: scroll upward
+    // Rows: scroll upward (middle section)
     const rowStrip = document.querySelector('.row-strip');
     marquee(rowStrip, 0.7);
+
+    // Pages: scroll upward (bottom section)
+    const pageStrip = document.querySelector('.page-strip');
+    marquee(pageStrip, 1.0);
   </script>
 </body>
 </html>
