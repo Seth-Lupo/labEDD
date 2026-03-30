@@ -367,19 +367,33 @@
     // Infinite vertical marquee: pages scroll UP (from bottom toward machine)
     // Rows scroll UP (from machine toward top)
     function marquee(strip, speed) {
-      // Duplicate children for seamless loop
       const clone = strip.innerHTML;
       strip.innerHTML += clone;
       let y = 0;
-      const half = strip.scrollHeight / 2;
+      let half = null;
 
       function tick() {
+        if (half === null || half === 0) {
+          half = strip.scrollHeight / 2;
+        }
         y -= speed;
-        if (Math.abs(y) >= half) y = 0;
+        if (half > 0 && Math.abs(y) >= half) y += half;
         strip.style.transform = 'translateY(' + y + 'px)';
         requestAnimationFrame(tick);
       }
-      requestAnimationFrame(tick);
+      // Wait for images to load before starting
+      const images = strip.querySelectorAll('img');
+      let loaded = 0;
+      const total = images.length;
+      if (total === 0) {
+        requestAnimationFrame(tick);
+      } else {
+        images.forEach(img => {
+          if (img.complete) { loaded++; }
+          else { img.onload = img.onerror = () => { loaded++; if (loaded >= total) { half = strip.scrollHeight / 2; } }; }
+        });
+        requestAnimationFrame(tick);
+      }
     }
 
     // Pages: scroll upward at ~30px/s
