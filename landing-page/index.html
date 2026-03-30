@@ -239,7 +239,15 @@
       right: 4rem;
       font-size: 0.75rem;
       color: #4a4f47;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
     }
+    footer a {
+      color: #4a4f47;
+      text-decoration: none;
+    }
+    footer a:hover { color: #7aad68; }
 
     @media (max-width: 900px) {
       body { flex-direction: column; }
@@ -347,10 +355,13 @@
       <li><strong>1-week turnaround.</strong> Just email us the PDF.</li>
     </ul>
 
-    <a href="mailto:hello@labedd.com?subject=Demo Request" class="cta">Schedule a Demo</a>
+    <a href="https://calendly.com/seth-labedd/labedd-demo" class="cta">Schedule a Demo</a>
   </div>
 
-  <footer>&copy; 2026 LabEDD</footer>
+  <footer>
+    <a href="mailto:info@labedd.com">info@labedd.com</a>
+    <span>&copy; 2026 LabEDD</span>
+  </footer>
 
   <script>
     // Infinite vertical marquee: pages scroll UP (from bottom toward machine)
