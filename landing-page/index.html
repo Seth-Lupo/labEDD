@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>LabEDD — Lab Reports to Structured Data for Environmental Consultants</title>
-  <meta name="description" content="LabEDD converts analytical lab report PDFs into structured Excel spreadsheets. ~99% accuracy. Any lab, any format. Built for environmental consultancies.">
+  <meta name="description" content="LabEDD converts analytical lab report PDFs into structured Excel spreadsheets. >99% accuracy. Any lab, any format. Built for environmental consultancies.">
   <meta name="keywords" content="EDD, electronic data deliverable, lab report, PDF to Excel, environmental data, environmental consulting, analytical results, LabEDD">
   <meta name="author" content="LabEDD">
   <link rel="canonical" href="https://labedd.com/">
@@ -13,13 +13,13 @@
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://labedd.com/">
   <meta property="og:title" content="LabEDD — Lab Reports to Structured Data">
-  <meta property="og:description" content="Convert analytical lab report PDFs into structured Excel spreadsheets. ~99% accuracy. Any lab, any format. Built for environmental consultancies.">
+  <meta property="og:description" content="Convert analytical lab report PDFs into structured Excel spreadsheets. >99% accuracy. Any lab, any format. Built for environmental consultancies.">
   <meta property="og:site_name" content="LabEDD">
 
   <!-- Twitter -->
   <meta name="twitter:card" content="summary">
   <meta name="twitter:title" content="LabEDD — Lab Reports to Structured Data">
-  <meta name="twitter:description" content="Convert analytical lab report PDFs into structured Excel spreadsheets. ~99% accuracy. Any lab, any format.">
+  <meta name="twitter:description" content="Convert analytical lab report PDFs into structured Excel spreadsheets. >99% accuracy. Any lab, any format.">
 
   <!-- Favicon -->
   <link rel="icon" type="image/svg+xml" href="favicon.svg">
@@ -219,6 +219,13 @@
 
     .points li strong { color: #7aad68; font-weight: 500; }
 
+    .cta-row {
+      display: flex;
+      align-items: center;
+      gap: 3rem;
+      max-width: 620px;
+    }
+
     .cta {
       display: inline-block;
       padding: 1rem 2.8rem;
@@ -229,9 +236,35 @@
       font-weight: 500;
       text-decoration: none;
       transition: background 0.2s;
-      align-self: flex-start;
+      flex-shrink: 0;
     }
     .cta:hover { background: #7aad68; color: #0b100b; }
+
+    .other-automation {
+      flex: 1;
+    }
+
+    .other-automation p {
+      font-size: 0.95rem;
+      color: #7a807a;
+      line-height: 1.6;
+    }
+
+    .other-automation strong {
+      color: #a3a89d;
+      font-weight: 500;
+    }
+
+    .other-automation a {
+      color: #7aad68;
+      text-decoration: none;
+      border-bottom: 1px solid transparent;
+      transition: border-color 0.2s;
+    }
+
+    .other-automation a:hover {
+      border-bottom-color: #7aad68;
+    }
 
     footer {
       position: absolute;
@@ -244,17 +277,22 @@
       gap: 1rem;
     }
     footer a {
-      color: #4a4f47;
+      color: #7aad68;
       text-decoration: none;
+      font-weight: 500;
     }
-    footer a:hover { color: #7aad68; }
+    footer a:hover {
+      color: #9dcc8e;
+      text-decoration: underline;
+    }
 
     @media (max-width: 900px) {
       body { flex-direction: column; }
       .viz { display: none; }
       .content { padding: 2rem; align-items: center; text-align: center; }
       .points { text-align: left; }
-      .cta { align-self: center; }
+      .cta-row { justify-content: center; }
+      .other-automation { display: none; }
       footer { right: 50%; transform: translateX(50%); }
     }
   </style>
@@ -349,13 +387,17 @@
     <h2>Analytical <em class="underline">lab report PDFs</em> to <em class="underline">structured spreadsheets</em> for <span class="highlight">environmental consultancies</span>.</h2>
 
     <ul class="points">
-      <li><strong>~99% accuracy</strong> across results tables, qualifier flags, non-detects, detection limits, and dilution factors.</li>
+      <li><strong>>99% accuracy</strong> across results tables, qualifier flags, non-detects, detection limits, and dilution factors.</li>
       <li>Flat data table and sample-by-analyte crosstab delivered in Excel, <strong>ready for your report</strong>.</li>
       <li><strong>Any lab, any format.</strong> Eurofins, Pace, SGS, ALS, Alpha, or your regional lab.</li>
-      <li><strong>1-week turnaround.</strong> Just email us the PDF.</li>
-    </ul>
+</ul>
 
-    <a href="https://calendly.com/seth-labedd/labedd-demo" class="cta">Schedule a Demo</a>
+    <div class="cta-row">
+      <a href="https://calendly.com/seth-labedd/labedd-demo" class="cta">Schedule a Demo</a>
+      <div class="other-automation">
+        <p>We also build <strong>custom automation solutions</strong> for environmental firms. Sick of repetitive work? <a href="https://calendly.com/seth-labedd/labedd-demo">Let's talk</a>.</p>
+      </div>
+    </div>
   </div>
 
   <footer>
