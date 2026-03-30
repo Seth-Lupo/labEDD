@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LabEDD — Lab Reports to Structured Data for Environmental Consultants</title>
+  <meta name="description" content="LabEDD converts analytical lab report PDFs into structured Excel spreadsheets. ~99% accuracy. Any lab, any format. Built for environmental consultancies.">
+  <meta name="keywords" content="EDD, electronic data deliverable, lab report, PDF to Excel, environmental data, environmental consulting, analytical results, LabEDD">
+  <meta name="author" content="LabEDD">
+  <link rel="canonical" href="https://labedd.com/">
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://labedd.com/">
+  <meta property="og:title" content="LabEDD — Lab Reports to Structured Data">
+  <meta property="og:description" content="Convert analytical lab report PDFs into structured Excel spreadsheets. ~99% accuracy. Any lab, any format. Built for environmental consultancies.">
+  <meta property="og:site_name" content="LabEDD">
+
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="LabEDD — Lab Reports to Structured Data">
+  <meta name="twitter:description" content="Convert analytical lab report PDFs into structured Excel spreadsheets. ~99% accuracy. Any lab, any format.">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon.svg">
+  <meta name="theme-color" content="#0b100b">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=DM+Serif+Display&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: #0b100b;
+      color: #dde0da;
+      font-family: 'Inter', sans-serif;
+      height: 100vh;
+      overflow: hidden;
+      display: flex;
+    }
+
+    /* ---- LEFT PANEL ---- */
+    .viz {
+      width: 40%;
+      height: 100vh;
+      position: relative;
+      overflow: hidden;
+      border-right: 1px solid #1a211a;
+    }
+
+    /* Fade top/bottom */
+    .viz::before, .viz::after {
+      content: '';
+      position: absolute;
+      left: 0; right: 0;
+      height: 120px;
+      z-index: 20;
+      pointer-events: none;
+    }
+    .viz::before { top: 0; background: linear-gradient(to bottom, #0b100b 20%, transparent); }
+    .viz::after  { bottom: 0; background: linear-gradient(to top, #0b100b 20%, transparent); }
+
+    /* Divider line */
+    .machine {
+      position: absolute;
+      left: 8%;
+      right: 8%;
+      top: 50%;
+      height: 2px;
+      background: #7aad68;
+      z-index: 15;
+      box-shadow: 0 0 12px rgba(122,173,104,0.3);
+    }
+
+    /* --- TRACKS: clipped regions above/below machine --- */
+    .page-track {
+      position: absolute;
+      left: 8%; right: 8%;
+      top: calc(50% + 1px);
+      bottom: 0;
+      z-index: 5;
+      overflow: hidden;
+    }
+
+    .row-track {
+      position: absolute;
+      left: 8%; right: 8%;
+      top: 0;
+      bottom: calc(50% + 1px);
+      z-index: 5;
+      overflow: hidden;
+    }
+
+    /* Strips: will be animated by JS */
+    .page-strip {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      will-change: transform;
+    }
+
+    .page-strip img {
+      width: 100%;
+      display: block;
+      border-radius: 3px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.4);
+      flex-shrink: 0;
+    }
+
+    .row-strip {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      will-change: transform;
+    }
+
+    .csv-row {
+      display: flex;
+      gap: 1px;
+      flex-shrink: 0;
+    }
+
+    .csv-row .cell {
+      background: #132013;
+      border: 0.5px solid #1e331e;
+      padding: 3px 5px;
+      font-size: 7px;
+      color: #7aad68;
+      font-family: 'Courier New', monospace;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      flex: 1;
+    }
+
+    .csv-row .cell.h {
+      background: #1a2b1a;
+      color: #9dcc8e;
+      font-weight: 700;
+      font-size: 6px;
+      text-transform: uppercase;
+    }
+
+    /* ---- RIGHT PANEL ---- */
+    .content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 3rem 4rem;
+    }
+
+    .header {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 2.2rem;
+    }
+
+    .logo-text {
+      font-family: 'DM Serif Display', serif;
+      font-size: 3.8rem;
+      color: #f0f2ee;
+      letter-spacing: 0.02em;
+    }
+    .logo-text span { color: #7aad68; }
+
+    h2 {
+      font-family: 'Inter', sans-serif;
+      font-size: 1.65rem;
+      font-weight: 400;
+      color: #b8bdb3;
+      max-width: 680px;
+      line-height: 1.6;
+      margin-bottom: 2.6rem;
+    }
+
+    h2 .underline {
+      font-style: normal;
+      text-decoration: none;
+      background-image: linear-gradient(90deg, #7aad68 0%, #7aad6833 100%);
+      background-position: 0 88%;
+      background-size: 100% 3px;
+      background-repeat: no-repeat;
+      color: #e0e4dc;
+    }
+
+    h2 .highlight {
+      color: #0b100b;
+      background: #7aad68;
+      padding: 0.05em 0.4em;
+      border-radius: 3px;
+    }
+
+    .points {
+      list-style: none;
+      max-width: 620px;
+      margin-bottom: 2.8rem;
+      text-align: left;
+    }
+
+    .points li {
+      font-size: 1.3rem;
+      color: #a3a89d;
+      margin-bottom: 1.1rem;
+      padding-left: 2rem;
+      position: relative;
+      line-height: 1.6;
+    }
+
+    .points li::before {
+      content: '\2713';
+      position: absolute;
+      left: 0; top: 0;
+      font-size: 1.15rem;
+      color: #7aad68;
+    }
+
+    .points li strong { color: #7aad68; font-weight: 500; }
+
+    .cta {
+      display: inline-block;
+      padding: 1rem 2.8rem;
+      background: #f0f2ee;
+      color: #0b100b;
+      font-family: 'Inter', sans-serif;
+      font-size: 1.1rem;
+      font-weight: 500;
+      text-decoration: none;
+      transition: background 0.2s;
+      align-self: flex-start;
+    }
+    .cta:hover { background: #7aad68; color: #0b100b; }
+
+    footer {
+      position: absolute;
+      bottom: 1.5rem;
+      right: 4rem;
+      font-size: 0.75rem;
+      color: #4a4f47;
+    }
+
+    @media (max-width: 900px) {
+      body { flex-direction: column; }
+      .viz { display: none; }
+      .content { padding: 2rem; align-items: center; text-align: center; }
+      .points { text-align: left; }
+      .cta { align-self: center; }
+      footer { right: 50%; transform: translateX(50%); }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="viz">
+
+    <!-- Continuous page scroll below the machine -->
+    <div class="page-track">
+      <div class="page-strip">
+        <img src="pages/page-029.png" alt="">
+        <img src="pages/page-020.png" alt="">
+        <img src="pages/page-004.png" alt="">
+        <img src="pages/page-024.png" alt="">
+        <img src="pages/page-030.png" alt="">
+        <img src="pages/page-009.png" alt="">
+        <img src="pages/page-017.png" alt="">
+        <img src="pages/page-001.png" alt="">
+        <img src="pages/page-007.png" alt="">
+        <img src="pages/page-005.png" alt="">
+      </div>
+    </div>
+
+    <!-- Divider line -->
+    <div class="machine"></div>
+
+    <!-- Continuous row scroll above the machine -->
+    <div class="row-track">
+      <div class="row-strip">
+        <div class="csv-row"><div class="cell h">Sample</div><div class="cell h">Depth</div><div class="cell h">Analyte</div><div class="cell h">Result</div><div class="cell h">Units</div><div class="cell h">Qual</div></div>
+        <div class="csv-row"><div class="cell">B-1</div><div class="cell">0'-2'</div><div class="cell">Benzene</div><div class="cell">1.9</div><div class="cell">ug/kg</div><div class="cell"></div></div>
+        <div class="csv-row"><div class="cell">B-1</div><div class="cell">0'-2'</div><div class="cell">Toluene</div><div class="cell">4.3</div><div class="cell">ug/kg</div><div class="cell"></div></div>
+        <div class="csv-row"><div class="cell">B-1</div><div class="cell">0'-2'</div><div class="cell">Xylenes</div><div class="cell">18.8</div><div class="cell">ug/kg</div><div class="cell"></div></div>
+        <div class="csv-row"><div class="cell">B-1</div><div class="cell">0'-2'</div><div class="cell">TPH-GRO</div><div class="cell">380</div><div class="cell">ug/kg</div><div class="cell"></div></div>
+        <div class="csv-row"><div class="cell">B-1</div><div class="cell">0'-2'</div><div class="cell">TPH-ERO</div><div class="cell">6,800</div><div class="cell">ug/kg</div><div class="cell"></div></div>
+        <div class="csv-row"><div class="cell">B-2</div><div class="cell">0'-2'</div><div class="cell">TPH-GRO</div><div class="cell">2,000</div><div class="cell">ug/kg</div><div class="cell"></div></div>
+        <div class="csv-row"><div class="cell">B-2</div><div class="cell">0'-2'</div><div class="cell">TPH-ERO</div><div class="cell">28,000</div><div class="cell">ug/kg</div><div class="cell"></div></div>
+        <div class="csv-row"><div class="cell">B-5</div><div class="cell">0'-2'</div><div class="cell">Benzo(a)pyrene</div><div class="cell">8,800</div><div class="cell">ug/kg</div><div class="cell"></div></div>
+        <div class="csv-row"><div class="cell">B-5</div><div class="cell">0'-2'</div><div class="cell">Benzo(a)anthr.</div><div class="cell">14,000</div><div class="cell">ug/kg</div><div class="cell"></div></div>
+        <div class="csv-row"><div class="cell">B-5</div><div class="cell">2'-4'</div><div class="cell">TPH-GRO</div><div class="cell">27,000</div><div class="cell">ug/kg</div><div class="cell"></div></div>
+        <div class="csv-row"><div class="cell">B-5</div><div class="cell">2'-4'</div><div class="cell">TPH-ERO</div><div class="cell">69,000</div><div class="cell">ug/kg</div><div class="cell"></div></div>
+        <div class="csv-row"><div class="cell">B-6</div><div class="cell">0'-2'</div><div class="cell">Benzo(a)pyrene</div><div class="cell">3,700</div><div class="cell">ug/kg</div><div class="cell"></div></div>
+        <div class="csv-row"><div class="cell">B-6</div><div class="cell">2'-4'</div><div class="cell">Benzo(b)fluor.</div><div class="cell">16,000</div><div class="cell">ug/kg</div><div class="cell"></div></div>
+        <div class="csv-row"><div class="cell">B-1</div><div class="cell">0'-2'</div><div class="cell">Lead</div><div class="cell">1,700</div><div class="cell">mg/kg</div><div class="cell"></div></div>
+        <div class="csv-row"><div class="cell">B-1</div><div class="cell">0'-2'</div><div class="cell">Arsenic</div><div class="cell">3.0</div><div class="cell">mg/kg</div><div class="cell"></div></div>
+        <div class="csv-row"><div class="cell">B-6</div><div class="cell">0'-2'</div><div class="cell">Arsenic</div><div class="cell">5.9</div><div class="cell">mg/kg</div><div class="cell"></div></div>
+        <div class="csv-row"><div class="cell">B-8</div><div class="cell">0'-2'</div><div class="cell">Chromium</div><div class="cell">410</div><div class="cell">mg/kg</div><div class="cell"></div></div>
+        <div class="csv-row"><div class="cell">MW-1</div><div class="cell"></div><div class="cell">TPH-ERO</div><div class="cell">6,600</div><div class="cell">ug/L</div><div class="cell"></div></div>
+        <div class="csv-row"><div class="cell">MW-3</div><div class="cell"></div><div class="cell">Arsenic</div><div class="cell">0.018</div><div class="cell">mg/L</div><div class="cell"></div></div>
+        <div class="csv-row"><div class="cell">MW-5</div><div class="cell"></div><div class="cell">TPH-ERO</div><div class="cell">6,600</div><div class="cell">ug/L</div><div class="cell"></div></div>
+        <!-- duplicate for seamless loop -->
+        <div class="csv-row"><div class="cell h">Sample</div><div class="cell h">Depth</div><div class="cell h">Analyte</div><div class="cell h">Result</div><div class="cell h">Units</div><div class="cell h">Qual</div></div>
+        <div class="csv-row"><div class="cell">B-1</div><div class="cell">0'-2'</div><div class="cell">Benzene</div><div class="cell">1.9</div><div class="cell">ug/kg</div><div class="cell"></div></div>
+        <div class="csv-row"><div class="cell">B-1</div><div class="cell">0'-2'</div><div class="cell">Toluene</div><div class="cell">4.3</div><div class="cell">ug/kg</div><div class="cell"></div></div>
+        <div class="csv-row"><div class="cell">B-1</div><div class="cell">0'-2'</div><div class="cell">Xylenes</div><div class="cell">18.8</div><div class="cell">ug/kg</div><div class="cell"></div></div>
+        <div class="csv-row"><div class="cell">B-1</div><div class="cell">0'-2'</div><div class="cell">TPH-GRO</div><div class="cell">380</div><div class="cell">ug/kg</div><div class="cell"></div></div>
+        <div class="csv-row"><div class="cell">B-1</div><div class="cell">0'-2'</div><div class="cell">TPH-ERO</div><div class="cell">6,800</div><div class="cell">ug/kg</div><div class="cell"></div></div>
+        <div class="csv-row"><div class="cell">B-2</div><div class="cell">0'-2'</div><div class="cell">TPH-GRO</div><div class="cell">2,000</div><div class="cell">ug/kg</div><div class="cell"></div></div>
+        <div class="csv-row"><div class="cell">B-2</div><div class="cell">0'-2'</div><div class="cell">TPH-ERO</div><div class="cell">28,000</div><div class="cell">ug/kg</div><div class="cell"></div></div>
+        <div class="csv-row"><div class="cell">B-5</div><div class="cell">0'-2'</div><div class="cell">Benzo(a)pyrene</div><div class="cell">8,800</div><div class="cell">ug/kg</div><div class="cell"></div></div>
+        <div class="csv-row"><div class="cell">B-5</div><div class="cell">0'-2'</div><div class="cell">Benzo(a)anthr.</div><div class="cell">14,000</div><div class="cell">ug/kg</div><div class="cell"></div></div>
+        <div class="csv-row"><div class="cell">B-5</div><div class="cell">2'-4'</div><div class="cell">TPH-GRO</div><div class="cell">27,000</div><div class="cell">ug/kg</div><div class="cell"></div></div>
+        <div class="csv-row"><div class="cell">B-5</div><div class="cell">2'-4'</div><div class="cell">TPH-ERO</div><div class="cell">69,000</div><div class="cell">ug/kg</div><div class="cell"></div></div>
+        <div class="csv-row"><div class="cell">B-6</div><div class="cell">0'-2'</div><div class="cell">Benzo(a)pyrene</div><div class="cell">3,700</div><div class="cell">ug/kg</div><div class="cell"></div></div>
+        <div class="csv-row"><div class="cell">B-6</div><div class="cell">2'-4'</div><div class="cell">Benzo(b)fluor.</div><div class="cell">16,000</div><div class="cell">ug/kg</div><div class="cell"></div></div>
+        <div class="csv-row"><div class="cell">B-1</div><div class="cell">0'-2'</div><div class="cell">Lead</div><div class="cell">1,700</div><div class="cell">mg/kg</div><div class="cell"></div></div>
+        <div class="csv-row"><div class="cell">B-1</div><div class="cell">0'-2'</div><div class="cell">Arsenic</div><div class="cell">3.0</div><div class="cell">mg/kg</div><div class="cell"></div></div>
+        <div class="csv-row"><div class="cell">B-6</div><div class="cell">0'-2'</div><div class="cell">Arsenic</div><div class="cell">5.9</div><div class="cell">mg/kg</div><div class="cell"></div></div>
+        <div class="csv-row"><div class="cell">B-8</div><div class="cell">0'-2'</div><div class="cell">Chromium</div><div class="cell">410</div><div class="cell">mg/kg</div><div class="cell"></div></div>
+        <div class="csv-row"><div class="cell">MW-1</div><div class="cell"></div><div class="cell">TPH-ERO</div><div class="cell">6,600</div><div class="cell">ug/L</div><div class="cell"></div></div>
+        <div class="csv-row"><div class="cell">MW-3</div><div class="cell"></div><div class="cell">Arsenic</div><div class="cell">0.018</div><div class="cell">mg/L</div><div class="cell"></div></div>
+        <div class="csv-row"><div class="cell">MW-5</div><div class="cell"></div><div class="cell">TPH-ERO</div><div class="cell">6,600</div><div class="cell">ug/L</div><div class="cell"></div></div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- RIGHT PANEL -->
+  <div class="content">
+    <div class="header">
+      <svg width="56" height="56" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M10 6h20l10 10v26a2 2 0 0 1-2 2H12a2 2 0 0 1-2-2V6z" fill="none" stroke="#7aad68" stroke-width="2.5" stroke-linejoin="round"/>
+        <path d="M30 6v10h10" fill="none" stroke="#7aad68" stroke-width="2.5" stroke-linejoin="round"/>
+        <line x1="17" y1="24" x2="33" y2="24" stroke="#f0f2ee" stroke-width="2.5" stroke-linecap="round"/>
+        <line x1="17" y1="30" x2="30" y2="30" stroke="#f0f2ee" stroke-width="2.5" stroke-linecap="round"/>
+        <line x1="17" y1="36" x2="26" y2="36" stroke="#f0f2ee" stroke-width="2.5" stroke-linecap="round"/>
+      </svg>
+      <div class="logo-text">Lab<span>EDD</span></div>
+    </div>
+
+    <h2>Analytical <em class="underline">lab report PDFs</em> to <em class="underline">structured spreadsheets</em> for <span class="highlight">environmental consultancies</span>.</h2>
+
+    <ul class="points">
+      <li><strong>~99% accuracy</strong> across results tables, qualifier flags, non-detects, detection limits, and dilution factors.</li>
+      <li>Flat data table and sample-by-analyte crosstab delivered in Excel, <strong>ready for your report</strong>.</li>
+      <li><strong>Any lab, any format.</strong> Eurofins, Pace, SGS, ALS, Alpha, or your regional lab.</li>
+      <li><strong>1-week turnaround.</strong> Just email us the PDF.</li>
+    </ul>
+
+    <a href="mailto:hello@labedd.com?subject=Demo Request" class="cta">Schedule a Demo</a>
+  </div>
+
+  <footer>&copy; 2026 LabEDD</footer>
+
+  <script>
+    // Infinite vertical marquee: pages scroll UP (from bottom toward machine)
+    // Rows scroll UP (from machine toward top)
+    function marquee(strip, speed) {
+      // Duplicate children for seamless loop
+      const clone = strip.innerHTML;
+      strip.innerHTML += clone;
+      let y = 0;
+      const half = strip.scrollHeight / 2;
+
+      function tick() {
+        y -= speed;
+        if (Math.abs(y) >= half) y = 0;
+        strip.style.transform = 'translateY(' + y + 'px)';
+        requestAnimationFrame(tick);
+      }
+      requestAnimationFrame(tick);
+    }
+
+    // Pages: scroll upward at ~30px/s
+    const pageStrip = document.querySelector('.page-strip');
+    // Start pages off-screen below so they scroll into view
+    marquee(pageStrip, 1.0);
+
+    // Rows: scroll upward
+    const rowStrip = document.querySelector('.row-strip');
+    marquee(rowStrip, 0.7);
+  </script>
+</body>
+</html>
